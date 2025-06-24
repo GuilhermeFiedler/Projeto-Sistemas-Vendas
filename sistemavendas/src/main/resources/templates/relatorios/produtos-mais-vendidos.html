@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Produtos Mais Vendidos</title>
+  <link rel="stylesheet" href="/css/produtos-mais-vendidos.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+<h1>Produtos Mais Vendidos</h1>
+
+<form method="get" th:action="@{/relatorios/produtos-mais-vendidos}">
+  <label for="data">Data:</label>
+  <input type="date" id="data" name="data"
+         th:value="${dataSelecionada}"
+         max="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" />
+  <button type="submit">Buscar</button>
+</form>
+
+<div th:if="${#lists.isEmpty(nomesProdutos)}">
+  <p>Nenhum produto vendido na data selecionada.</p>
+</div>
+
+<div th:if="${!#lists.isEmpty(nomesProdutos)}">
+  <canvas id="grafico" width="600" height="300"></canvas>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const nomes = [[${nomesProdutos}]];
+  const quantidades = [[${quantidades}]];
+
+  new Chart(document.getElementById('grafico'), {
+      type: 'bar',
+      data: {
+          labels: nomes,
+          datasets: [{
+              label: 'Produtos mais vendidos',
+              data: quantidades,
+              backgroundColor: [
+                  'rgba(75, 192, 192, 0.7)',
+                  'rgba(255, 159, 64, 0.7)',
+                  'rgba(153, 102, 255, 0.7)'
+              ],
+              borderColor: [
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  title: {
+                      display: true,
+                      text: 'Quantidade vendida'
+                  }
+              },
+              x: {
+                  title: {
+                      display: true,
+                      text: 'Produtos'
+                  }
+              }
+          },
+          plugins: {
+              legend: {
+                  display: false
+              },
+              title: {
+                  display: true,
+                  text: 'Top 3 Produtos Mais Vendidos'
+              }
+          }
+      }
+  });
+  /*]]>*/
+</script>
+<a th:href="@{/dashboard}"><button>Voltar</button></a>
+</body>
+</html>

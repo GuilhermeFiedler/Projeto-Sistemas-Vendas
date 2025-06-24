@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Relatório de Vendas por Período</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/css/relatorio-vendas.css">
+</head>
+<body>
+<h1>Vendas por Período</h1>
+
+<form method="get" action="#" th:action="@{/relatorios/vendas-por-periodo}">
+  Início: <input type="datetime-local" name="inicio"
+                 th:value="${#temporals.format(inicio, 'yyyy-MM-dd''T''HH:mm')}" />
+  Fim: <input type="datetime-local" name="fim"
+              th:value="${#temporals.format(fim, 'yyyy-MM-dd''T''HH:mm')}" />
+  <button type="submit">Filtrar</button>
+</form>
+
+<canvas id="graficoVendas" width="800" height="400"></canvas>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var dados = /*[[${dadosVendas}]]*/ [];
+
+  var labels = dados.map(function(e) { return e[0]; });  // data
+  var valores = dados.map(function(e) { return e[1]; }); // total vendas
+
+  var ctx = document.getElementById('graficoVendas').getContext('2d');
+  var chart = new Chart(ctx, {
+      type: 'line', // ALTERADO AQUI
+      data: {
+          labels: labels,
+          datasets: [{
+              label: 'Total de Vendas (R$)',
+              data: valores,
+              fill: false,
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              tension: 0.3
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  title: {
+                      display: true,
+                      text: 'R$'
+                  }
+              },
+              x: {
+                  title: {
+                      display: true,
+                      text: 'Data'
+                  }
+              }
+          }
+      }
+  });
+  /*]]>*/
+</script>
+<a th:href="@{/dashboard}"><button>Voltar</button></a>
+</body>
+</html>
