@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Faturamento Mensal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/css/faturamento.css">
+</head>
+<body>
+<h2>Faturamento Mensal - [[${ano}]]</h2>
+
+<form method="get" action="#" style="margin-bottom: 20px;">
+  <label for="ano">Selecione o ano:</label>
+  <select name="ano" id="ano" onchange="this.form.submit()">
+    <option th:each="y : ${#numbers.sequence(ano - 10, ano + 10)}"
+            th:value="${y}"
+            th:text="${y}"
+            th:selected="${y == ano}"></option>
+  </select>
+</form>
+
+<canvas id="graficoFaturamento" width="600" height="300"></canvas>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const dados = [[${dadosFaturamento}]];
+  const labels = dados.map(d => d.mes + "/[[${ano}]]");
+  const valores = dados.map(d => d.total);
+
+  new Chart(document.getElementById('graficoFaturamento'), {
+      type: 'bar',
+      data: {
+          labels: labels,
+          datasets: [{
+              label: 'Faturamento (R$)',
+              data: valores,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+  /*]]>*/
+</script>
+<a th:href="@{/dashboard}"><button>Voltar</button></a>
+</body>
+</html>

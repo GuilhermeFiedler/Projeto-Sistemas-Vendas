@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Novo Pedido</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        let indice = 0;
+
+        function adicionarProduto() {
+            const select = document.getElementById("produtoSelect");
+            const produtoId = select.value;
+            const produtoNome = select.selectedOptions[0].text;
+            const estoque = parseInt(select.selectedOptions[0].getAttribute("data-estoque"));
+            const preco = parseFloat(select.selectedOptions[0].getAttribute("data-preco"));
+            const quantidadeInput = parseInt(document.getElementById("quantidadeInput").value);
+
+            if (!produtoId || isNaN(quantidadeInput) || quantidadeInput <= 0) {
+                alert("Selecione um produto e uma quantidade válida.");
+                return;
+            }
+
+
+            const itemExistente = document.querySelector(`.item-pedido[data-produto-id='${produtoId}']`);
+
+            if (itemExistente) {
+                const qtdAtual = parseInt(itemExistente.getAttribute("data-quantidade"));
+                const novaQtd = qtdAtual + quantidadeInput;
+
+                if (novaQtd > estoque) {
+                    alert(`Quantidade total (${novaQtd}) excede o estoque disponível (${estoque}).`);
+                    return;
+                }
+
+
+                itemExistente.setAttribute("data-quantidade", novaQtd);
+                itemExistente.setAttribute("data-total", (novaQtd * preco).toFixed(2));
+                itemExistente.querySelector("input[name$='.quantidade']").value = novaQtd;
+                itemExistente.querySelector("span").textContent = `${produtoNome} - ${novaQtd} unidade(s) - R$ ${(novaQtd * preco).toFixed(2)}`;
+            } else {
+                if (quantidadeInput > estoque) {
+                    alert(`Quantidade (${quantidadeInput}) excede o estoque disponível (${estoque}).`);
+                    return;
+                }
+
+                const lista = document.getElementById("itens");
+
+                const item = document.createElement("div");
+                item.classList.add("item-pedido");
+                item.setAttribute("data-produto-id", produtoId);
+                item.setAttribute("data-quantidade", quantidadeInput);
+                item.setAttribute("data-total", (quantidadeInput * preco).toFixed(2));
+                item.innerHTML = `
+                    <input type="hidden" name="itens[${indice}].produto.id" value="${produtoId}" />
+                    <input type="hidden" name="itens[${indice}].quantidade" value="${quantidadeInput}" />
+                    <span>${produtoNome} - ${quantidadeInput} unidade(s) - R$ ${(quantidadeInput * preco).toFixed(2)}</span>
+                    <button type="button" onclick="removerItem(this)">Remover</button>
+                    <br/>
+                `;
+                lista.appendChild(item);
+                indice++;
+            }
+
+            atualizarTotal();
+            document.getElementById("quantidadeInput").value = "";
+        }
+
+        function removerItem(botao) {
+            const item = botao.closest(".item-pedido");
+            item.remove();
+            atualizarTotal();
+        }
+
+        function atualizarTotal() {
+            let total = 0;
+            const itens = document.querySelectorAll(".item-pedido");
+            itens.forEach(div => {
+                total += parseFloat(div.getAttribute("data-total"));
+            });
+
+            document.getElementById("totalPedido").innerText = "Total do Pedido: R$ " + total.toFixed(2);
+        }
+    </script>
+</head>
+<body>
+<div th:if="${mensagemErro}" class="alert alert-danger">
+    <p th:text="${mensagemErro}"></p>
+</div>
+<h2>Novo Pedido</h2>
+
+<form th:action="@{/pedidos/salvar}" th:object="${pedido}" method="post">
+
+
+    <label for="cliente">Cliente:</label>
+    <select id="cliente" name="cliente.id" required>
+        <option value="">Selecione o cliente</option>
+        <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.nomeCompleto}"></option>
+    </select>
+    <br/><br/>
+
+
+    <label for="produtoSelect">Produto:</label>
+    <select id="produtoSelect">
+        <option value="">Selecione o produto</option>
+        <option th:each="produto : ${produtos}"
+                th:value="${produto.id}"
+                th:text="${produto.nome}"
+                th:attr="data-estoque=${produto.quantidadeEstoque},data-preco=${produto.preco}">
+        </option>
+    </select>
+
+    <label for="quantidadeInput">Quantidade:</label>
+    <input type="number" id="quantidadeInput" min="1" />
+    <button type="button" onclick="adicionarProduto()">Adicionar Produto</button>
+
+
+    <div id="itens" style="margin-top: 15px;">
+
+    </div>
+
+
+    <p id="totalPedido" style="font-weight: bold; margin-top: 10px;">Total do Pedido: R$ 0.00</p>
+
+    <br/>
+    <label for="dataHora">Data e Hora do Pedido:</label>
+    <input type="datetime-local" id="dataHora" name="dataHora"
+           th:value="${pedido.dataHora != null} ? ${#temporals.format(pedido.dataHora, 'yyyy-MM-dd''T''HH:mm')} : ${#temporals.format(T(java.time.LocalDateTime).now(), 'yyyy-MM-dd''T''HH:mm')}" />
+
+    <button type="submit">Salvar Pedido</button>
+    <a th:href="@{/pedidos}"><button>Cancelar</button></a>
+</form>
+</body>
+</html>

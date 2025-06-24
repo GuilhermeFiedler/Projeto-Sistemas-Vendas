@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Estoque Crítico</title>
+  <link rel="stylesheet" href="/css/estoque-critico.css">
+  <style>
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+    .critico { background-color: #ffd6d6; color: #b30000; font-weight: bold; }
+  </style>
+</head>
+<body>
+<h2>Relatório: Estoque Crítico</h2>
+
+<table>
+  <thead>
+  <tr>
+    <th>Produto</th>
+    <th>Estoque Atual</th>
+    <th>Estoque Mínimo</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="produto : ${produtos}"
+      th:classappend="${produto.quantidadeEstoque} &lt;= ${produto.quantidadeMinima} ? 'critico'">
+    <td th:text="${produto.nome}"></td>
+    <td th:text="${produto.quantidadeEstoque}"></td>
+    <td th:text="${produto.quantidadeMinima}"></td>
+  </tr>
+  <tr th:if="${#lists.isEmpty(produtos)}">
+    <td colspan="3">Nenhum produto com estoque crítico.</td>
+  </tr>
+  </tbody>
+</table>
+
+<br>
+<a th:href="@{/dashboard}"><button>Voltar</button></a>
+</body>
+</html>

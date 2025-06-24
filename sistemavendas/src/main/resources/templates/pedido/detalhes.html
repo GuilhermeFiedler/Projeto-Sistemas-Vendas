@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<link rel="stylesheet" href="/css/style.css">
+<head>
+    <meta charset="UTF-8" />
+    <title>Detalhes do Pedido</title>
+</head>
+<body>
+<h2>Detalhes do Pedido</h2>
+
+<p><strong>Cliente:</strong> <span th:text="${pedido.cliente.nomeCompleto}">Cliente</span></p>
+<p><strong>Data:</strong> <span th:text="${#temporals.format(pedido.dataHora, 'dd/MM/yyyy HH:mm')}">Data</span></p>
+
+<h3>Itens</h3>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Produto</th>
+        <th>Quantidade</th>
+        <th>Preço Unitário</th>
+        <th>Subtotal</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${pedido.itens}">
+        <td th:text="${item.produto.nome}">Produto</td>
+        <td th:text="${item.quantidade}">0</td>
+        <td th:text="${item.precoUnitario}">0.00</td>
+        <td th:text="${item.quantidade * item.precoUnitario}">0.00</td>
+    </tr>
+    </tbody>
+</table>
+
+<p><strong>Total do Pedido:</strong>
+    <span th:text="${pedido.total}">0.00</span>
+</p>
+
+<a th:href="@{/pedidos}"><button>Voltar</button></a>
+</body>
+</html>

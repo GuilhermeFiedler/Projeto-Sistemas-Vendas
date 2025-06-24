@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+
+<nav>
+  <a th:href="@{/dashboard}">Dashboard</a>
+  <a th:href="@{/usuarios}">Usuários</a>
+  <a th:href="@{/produtos}">Produtos</a>
+  <a th:href="@{/clientes}">Clientes</a>
+  <a th:href="@{/pedidos}">Pedidos</a>
+  <a th:href="@{/estoque}">Estoque</a>
+
+<div class="dropdown" id="dropdownRelatorios">
+  <button onclick="toggleDropdown()">Relatórios ▼</button>
+  <div class="dropdown-content">
+    <a th:href="@{/relatorios/vendas-por-periodo}">Vendas por Período</a>
+    <a th:href="@{/relatorios/produtos-mais-vendidos}">Produtos Mais Vendidos</a>
+    <a th:href="@{/relatorios/estoque-critico}">Estoque Crítico</a>
+    <a th:href="@{/relatorios/faturamento-mensal}">Faturamento Mensal</a>
+  </div>
+</div>
+</nav>
+
+<script>
+  function toggleDropdown() {
+    const dropdown = document.getElementById('dropdownRelatorios');
+    dropdown.classList.toggle('show');
+  }
+
+
+  window.onclick = function(event) {
+    if (!event.target.matches('#dropdownRelatorios button')) {
+      const dropdown = document.getElementById('dropdownRelatorios');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      }
+    }
+  }
+</script>
+
+<main>
+  <div class="card">
+    <h3>Resumo de Vendas</h3>
+    <p th:text="${resumoVendas}">R$ 0,00</p>
+  </div>
+  <div class="card">
+    <h3>Pedidos Hoje</h3>
+    <p th:text="${pedidosHoje}">0</p>
+  </div>
+  <div class="card">
+    <h3>Estoque Crítico</h3>
+    <p th:text="${produtosCriticos}">0 itens</p>
+  </div>
+
+  <div class="card chart-card">
+    <h3>Faturamento Mensal</h3>
+    <canvas id="faturamentoChart"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script th:inline="javascript">
+    const ctx = document.getElementById('faturamentoChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: [[${meses}]],
+    datasets: [{
+      label: 'Faturamento (R$)',
+      data: [[${valores}]],
+      backgroundColor: 'rgba(74, 144, 226, 0.7)',
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value) {
+            return 'R$ ' + value.toLocaleString('pt-BR');
+          }
+        }
+      }
+    }
+  }
+});
+
+  </script>
+
+</main>
+
+</body>
+</html>

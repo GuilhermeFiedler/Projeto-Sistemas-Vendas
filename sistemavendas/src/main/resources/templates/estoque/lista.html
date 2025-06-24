@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Controle de Estoque</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<h2>Controle de Estoque</h2>
+
+<table>
+  <thead>
+  <tr>
+    <th>Produto</th>
+    <th>Estoque Atual</th>
+    <th>Estoque Mínimo</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="produto : ${produtos}"
+      th:classappend="${produto.quantidadeEstoque} &lt;= ${produto.quantidadeMinima} ? 'critico'">
+    <td th:text="${produto.nome}"></td>
+    <td th:text="${produto.quantidadeEstoque}"></td>
+    <td th:text="${produto.quantidadeMinima}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<a th:href="@{/dashboard}"><button>Voltar</button></a>
+</body>
+</html>
